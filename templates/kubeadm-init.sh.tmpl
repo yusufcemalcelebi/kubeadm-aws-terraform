@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# https://stackoverflow.com/a/52196985
+swapoff -a
+sed -i '/ swap / s/^/#/' /etc/fstab
+
+# Install kubeadm and Docker
+export HOME=/root
+
+# Install kubeadm and Docker
+apt-get update
+apt-get install -y apt-transport-https curl
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
+apt-get update
+apt-get install -y kubectl=1.20.6-00 kubelet=1.20.6-00 docker.io kubeadm=1.20.6-00 --allow-downgrades
+
+# Run kubeadm
+kubeadm init \
+  --token "${token}" \
+  --token-ttl 15m \
+  --apiserver-cert-extra-sans "${master_ip}" \
+  --pod-network-cidr "10.244.0.0/16" \
+  --kubernetes-version "v1.20.6"
+
+# Prepare kubeconfig file for download to local machine
+cp /etc/kubernetes/admin.conf /home/ubuntu
+chown ubuntu:ubuntu /home/ubuntu/admin.conf
+export KUBECONFIG=/home/ubuntu/admin.conf
+
+kubectl config set-cluster kubernetes --server https://${master_ip}:6443
+
+# setup network overlay flannel
+kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
+
+# untaint the master node to run workloads
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+# Indicate completion of bootstrapping on this node
+touch /home/ubuntu/done

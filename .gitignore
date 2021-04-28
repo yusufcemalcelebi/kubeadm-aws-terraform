@@ -1,0 +1,6 @@
+# terraform related files
+.terraform/
+*tfstate*
+
+# kubeadm configuration
+kubeadm-single-node.conf
