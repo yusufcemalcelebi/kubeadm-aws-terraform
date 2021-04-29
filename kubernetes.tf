@@ -187,7 +187,7 @@ resource "aws_instance" "master" {
     volume_size = 30
   }
 
-  tags      = merge(local.tags, { "terraform-kubeadm:node" = "master", "kubernetes.io/cluster/kubernetes" = "owned" })
+  tags      = merge(local.tags, { "terraform-kubeadm:node" = "master", "kubernetes.io/cluster/kubernetes" = "owned", "Talent" = "728908105939" })
   user_data = "${data.template_file.script.rendered}"
 }
 
