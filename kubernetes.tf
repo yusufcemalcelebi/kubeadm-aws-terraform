@@ -183,6 +183,10 @@ resource "aws_instance" "master" {
     aws_security_group.ingress_k8s.id,
     aws_security_group.ingress_ssh.id
   ]
+  root_block_device {
+    volume_size = 30
+  }
+
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "master", "kubernetes.io/cluster/kubernetes" = "owned" })
   user_data = "${data.template_file.script.rendered}"
 }

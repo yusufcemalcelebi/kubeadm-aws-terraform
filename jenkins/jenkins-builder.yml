@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+spec:
+  volumes:
+  - name: docker-socket
+    emptyDir: {}
+  containers:
+  - name: jenkins-builder
+    image: yusufcemalcelebi/jenkins-builder:latest
+    command:
+    - sleep
+    args:
+    - 99d
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
+  - name: docker-daemon
+    image: docker:20.10.6-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
